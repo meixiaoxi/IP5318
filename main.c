@@ -19,20 +19,20 @@
 
 
 
-// p17 data
-//p00 clk
+// p11 data
+//p12 clk
 
 
-#define SDA_H()                 (P17 = 1)
-#define SDA_L()                 (P17 = 0)
+#define SDA_H()                 (P11 = 1)
+#define SDA_L()                 (P11 = 0)
 
-#define SCL_H()                 (P00 = 1)
-#define SCL_L()                 (P00 = 0)
+#define SCL_H()                 (P12 = 1)
+#define SCL_L()                 (P12 = 0)
 
-#define GET_SDA()               (P17)
+#define GET_SDA()               (P11)
 
-#define CHG_SDA_OUT()   (DDR17 = 0)
-#define CHG_SDA_IN()    (DDR17 = 1)
+#define CHG_SDA_OUT()   (DDR11 = 0)
+#define CHG_SDA_IN()    (DDR11 = 1)
 
 /*
 #define SDA_H()                 (P10 = 1)
@@ -47,7 +47,7 @@
 #define CHG_SDA_IN()    (DDR10 = 1)
 */
 
-#define IIC_ADDR  0xA0
+#define IIC_ADDR  0xEA
 
 #define _nop_() __asm__("nop")
 #define swait_uSec(n) Wait_uSec(n)
@@ -231,7 +231,6 @@ void  I2C_write(unsigned char reg, unsigned char val)
 {
         //signed char ret = 0;
 
-        GIE = 0;
         
         IIC_START();
 
@@ -249,9 +248,6 @@ void  I2C_write(unsigned char reg, unsigned char val)
         #endif
         IIC_STOP();
         Wait_uSec(2);
-        delay_ms(100);
-        GIE = 1;
-        //return ret;
 }
 
 short I2C_read(unsigned char reg)
@@ -260,8 +256,6 @@ short I2C_read(unsigned char reg)
         //signed short ret = 0; temp_char_2
 
         temp_char_2 = 0;
-
-        GIE = 0;
 
         IIC_START();
         #if 0
@@ -287,7 +281,6 @@ short I2C_read(unsigned char reg)
         IIC_STOP();
         #endif
         Wait_uSec(10);
-        GIE = 1;
 
         return (short)temp_char_3;
 }
@@ -296,14 +289,17 @@ short I2C_read(unsigned char reg)
 
 void InitConfig()
 {
-        DDR0 = 0;
-        DDR1 = 0x4B;   // 01001011
+        /*
+        *       MCU config
+        */
+        
+       // DDR0 = 0;
+        DDR1 = 0xE9;   // 11101001
 
-       PUCON = 0x00;    //0x7F;    //打开上拉 P17
+         P1 = 0;
 
         T0CR = 0x07;
-        T0IE = 1;
-        
+        T0IE = 0;
         
         GIE = 1;                    //使能全局中断
 }
@@ -313,15 +309,10 @@ void InitConfig()
 
 void main()
 {
-        
-        
-        
-        
-        
         InitConfig();    //初始化配置
         DisWatchdog();
 
-       EnWatchdog();
+        EnWatchdog();
         
    
         
